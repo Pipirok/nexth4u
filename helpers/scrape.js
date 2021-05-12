@@ -1,17 +1,18 @@
 import cheerio from "cheerio";
-import fetch from "node-fetch";
 import { v4 as uuid } from "uuid";
+import fetch from "node-fetch";
 
-export default async (req, res) => {
-  let sauce = parseInt(req.query.sauce);
-
+export default async function scrape(sauce) {
+  sauce = parseInt(sauce);
   sauce = !isNaN(sauce) ? sauce : Math.floor(Math.random() * 320000);
 
   const html = await fetch(`https://nhentai.net/g/${sauce}`)
     .then((body) => body.text())
     .catch((err) => {
-      res.json({ error: true });
-      return;
+      return {
+        error: true,
+        msg: err.message,
+      };
     });
 
   const $ = cheerio.load(html);
@@ -19,8 +20,10 @@ export default async (req, res) => {
   let pretty = $('meta[itemprop="name"]').attr("content");
 
   if (pretty === undefined) {
-    res.json({ noDoujin: true });
-    return;
+    return {
+      sauce,
+      noDoujin: true,
+    };
   }
 
   let title = $("h1.title").text();
@@ -31,14 +34,14 @@ export default async (req, res) => {
 
   const doujinInfo = [];
 
-  for (let i = 1; i < 7; i++) {
-    doujinInfo.push(
-      $(`#tags > div:nth-child(${i}) > span`)
-        .children()
-        .toArray()
-        .map((i) => $(i).children().first().text())
-    );
-  }
+  [...Array(7)].forEach((e, i) => {
+    let info = $(`#tags > div:nth-child(${i + 1}) > span`)
+      .children()
+      .toArray()
+      .map((i) => $(i).children().first().text());
+    if (!info) info = [];
+    doujinInfo.push(info);
+  });
 
   let [parodies, characters, tags, artists, groups, languages, categories] =
     doujinInfo;
@@ -56,23 +59,23 @@ export default async (req, res) => {
 
   let id = uuid();
 
-  res.json({
+  return {
     id,
     sauce,
+    image,
     pretty,
     title,
-    image,
-    pageAmount,
     tags,
+    pageAmount,
     parodies,
     characters,
-    groups,
-    uploadDate,
-    categories,
-    languages,
     artists,
+    groups,
+    languages,
+    categories,
+    uploadDate,
     pages,
     thumbnails,
     noDoujin: false,
-  });
-};
+  };
+}

@@ -1,23 +1,31 @@
 import Head from "next/head";
-import { Container } from "reactstrap";
+import Link from "next/link";
+import { Container, Button, List } from "reactstrap";
+import Footer from "../components/Footer";
+import Topbar from "../components/Topbar";
 
 export default function Home() {
   return (
-    <div>
+    <>
       <Head>
-        <title>Test app</title>
+        <title>hentai4u - a doujin viewer</title>
       </Head>
-      <Container className="">
-        <img
-          referrerPolicy="same-origin"
-          src="https://t.nhentai.net/galleries/1239337/cover.jpg"
-          width="100%"
-        />
-      </Container>
-    </div>
+      <Topbar />
+      <main>
+        <Container className="pt-5 pb-5 text-white">
+          <h1 className="h1 display-4">
+            Welcome to <span className="text-primary">hentai4u</span>
+          </h1>
+          <p className="lead">
+            All new features are going to be displayed here.
+          </p>
+          <p className="h4">Features so far:</p>
+          <Link href="/view">
+            <Button color="secondary">View a doujin</Button>
+          </Link>
+        </Container>
+      </main>
+      <Footer />
+    </>
   );
 }
-
-export const getServerSideProps = async () => {
-  return { props: {} };
-};
