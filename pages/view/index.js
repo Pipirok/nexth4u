@@ -43,7 +43,7 @@ export default function index() {
     changeSuccessText("Saving...");
     localStorage.setItem(
       "blacklistedTags",
-      JSON.stringify(blacklistedTags.split(/, */g))
+      JSON.stringify(Array.from(new Set(blacklistedTags.split(/, */g))))
     );
     changeSuccessText("Saved succesfully!");
     changeBlacklist(JSON.parse(localStorage.getItem("blacklistedTags")));
